@@ -196,6 +196,7 @@ This is where all your course work will live. Keep it tidy.
 
 A new tab opens with an empty file.
 
+
 ### Step 6.4 — Write the code
 
 Type **exactly** this into the file:
