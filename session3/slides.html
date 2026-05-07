@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Session 3 — Data Structures &amp; Functions</title>
+<style>
+  :root {
+    --ink: #111111;
+    --paper: #ffffff;
+    --accent: #EE7F00;
+    --muted: #6b6b6b;
+    --rule: #e5e5e5;
+    --soft: #fff6ec;
+    --green: #2e8b57;
+    --amber: #d7a700;
+    --red:   #c0392b;
+    --code-bg: #1f1f1f;
+    --code-fg: #f5f5f5;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #000;
+    color: var(--ink);
+    font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+  }
+  #stage { position: fixed; inset: 0; background: #000; overflow: hidden; }
+  #deck {
+    position: absolute; top: 50%; left: 50%;
+    width: 1600px; height: 900px;
+    margin-left: -800px; margin-top: -450px;
+    transform-origin: center center;
+    background: var(--paper);
+    box-shadow: 0 0 80px rgba(0,0,0,0.5);
+  }
+  .slide {
+    position: absolute; inset: 0;
+    padding: 90px 110px 80px 110px;
+    display: none; flex-direction: column;
+    background: var(--paper);
+  }
+  .slide.active { display: flex; }
+  .phase { position: absolute; top: 60px; left: 60px; color: var(--accent); font-weight: 700; font-size: 20px; letter-spacing: 0.14em; text-transform: uppercase; }
+  h1 { font-size: 84px; line-height: 1.05; margin: 0 0 28px; font-weight: 800; letter-spacing: -0.02em;}
+  h2 { font-size: 60px; line-height: 1.08; margin: 0 0 22px; font-weight: 800; letter-spacing: -0.015em;}
+  h3 { font-size: 38px; line-height: 1.15; margin: 0 0 18px; font-weight: 700; color: var(--ink);}
+  h4 { font-size: 26px; line-height: 1.2; margin: 0 0 12px; font-weight: 700; color: var(--accent); letter-spacing: 0.02em; text-transform: uppercase;}
+  p  { font-size: 28px; line-height: 1.35; margin: 0 0 16px;}
+  .lead { font-size: 38px; line-height: 1.25; font-weight: 500;}
+  .small { font-size: 22px; color: var(--muted);}
+  .muted { color: var(--muted); }
+  .accent { color: var(--accent); font-weight: 700; }
+  .kicker { color: var(--accent); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; font-size: 24px; margin-bottom: 16px; }
+  ul { margin: 0; padding: 0 0 0 34px; font-size: 26px; line-height: 1.4; }
+  ul li { margin: 8px 0; }
+  ul.clean { list-style: none; padding: 0; }
+  code, pre, .mono { font-family: "JetBrains Mono", "Fira Code", ui-monospace, Menlo, Consolas, monospace; }
+  pre.code {
+    background: var(--code-bg); color: var(--code-fg);
+    padding: 22px 28px; border-radius: 12px;
+    font-size: 22px; line-height: 1.45;
+    white-space: pre; overflow: hidden;
+  }
+  pre.code .comment { color: #9aa0a6; }
+  pre.code .accent { color: #FFB454; font-weight: 600; }
+  .pill {
+    display: inline-block; padding: 8px 18px; border-radius: 999px;
+    background: var(--soft); color: var(--accent);
+    font-weight: 700; font-size: 22px; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 24px;}
+  th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--rule);}
+  th { font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 18px; color: var(--muted);}
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: start; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; align-items: start; }
+  .grow { flex: 1; }
+  .card {
+    background: #fafafa; border: 2px solid var(--ink); border-radius: 16px;
+    padding: 26px 28px;
+  }
+  .card.accent { border-color: var(--accent); background: var(--soft); }
+  .footer {
+    position: absolute; bottom: 30px; left: 60px; right: 60px;
+    display: flex; justify-content: space-between;
+    color: var(--muted); font-size: 20px; letter-spacing: 0.08em;
+  }
+  .footer .progress { height: 4px; flex: 1; margin: 0 24px; background: var(--rule); align-self: center; position: relative; overflow: hidden; }
+  .footer .progress span { display: block; height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease; }
+  .title-slide { background: var(--ink); color: white; padding: 160px 110px 100px 110px; }
+  .title-slide h1 { color: white; font-size: 104px; margin-bottom: 30px;}
+  .title-slide .lead { color: #cfcfcf; font-size: 42px;}
+  .title-slide .kicker { color: var(--accent); font-size: 26px;}
+  .title-slide .footer { color: #8a8a8a;}
+  .title-slide .footer .progress { background: #333; }
+  .quote-slide { background: var(--soft); }
+  .quote-slide blockquote { margin: 0; font-size: 56px; line-height: 1.2; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+  .quote-slide cite { display: block; margin-top: 30px; color: var(--muted); font-size: 26px; font-style: normal; }
+  .challenge-slide { background: var(--soft); border-left: 18px solid var(--accent); padding-left: 80px; }
+  .challenge-slide h2 { color: var(--accent); }
+  .no-show { display: none !important; }
+  #help { position: fixed; inset: auto 20px 20px auto; background: rgba(0,0,0,0.85); color: #fff; padding: 14px 18px; border-radius: 10px; font-size: 14px; line-height: 1.5; z-index: 10; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  #help.hidden { display: none; }
+  #help kbd { background: #333; padding: 2px 6px; border-radius: 4px; margin: 0 2px;}
+</style>
+</head>
+<body>
+<div id="stage">
+<div id="deck">
+
+  <!-- =========== 1 · Title =========== -->
+  <section class="slide title-slide" data-phase="Session 3">
+    <span class="phase">Session 3</span>
+    <div class="grow"></div>
+    <span class="kicker">Block B · Saint Mary's General Hospital</span>
+    <h1>Data Structures<br/>&amp; Functions</h1>
+    <p class="lead">From typing values to <em>organising</em> values. Today we shape the data before we analyse it.</p>
+    <div class="grow"></div>
+    <div class="footer"><span>06.05.2026 · Operations Analytics Unit</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 2 · Hook =========== -->
+  <section class="slide quote-slide" data-phase="Anamnesis">
+    <span class="phase">Anamnesis</span>
+    <div class="grow"></div>
+    <blockquote>How would you describe a single&nbsp;<span class="accent">hospital admission</span>&nbsp;to a database?</blockquote>
+    <cite>The CMO walks in: <em>"Tell me how full our wards are. By tomorrow."</em></cite>
+    <div class="grow"></div>
+    <div class="footer"><span>Saint Mary's · 06.05.2026 · 09:00</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 3 · Shape of today =========== -->
+  <section class="slide" data-phase="Anamnesis">
+    <span class="phase">Anamnesis</span>
+    <h2>The shape of today</h2>
+    <p class="small" style="margin-bottom: 30px;">60% your hands on keys · 40% explanation · the medical bracket as before</p>
+    <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap: 18px; margin-top: 16px;">
+      <div class="card"><h4>1 · Anamnesis</h4><p style="font-size:20px;">What does ONE thing look like in our data?</p></div>
+      <div class="card"><h4>2 · Anatomy</h4><p style="font-size:20px;">List · Tuple · Dict · Set</p></div>
+      <div class="card"><h4>3 · Physiology</h4><p style="font-size:20px;">Iteration · Mutability · Scope</p></div>
+      <div class="card accent"><h4>4 · Clinic</h4><p style="font-size:20px;">Bed Occupancy Calculator</p></div>
+      <div class="card"><h4>5 · DD</h4><p style="font-size:20px;">Mutable defaults · silent None</p></div>
+    </div>
+    <div class="grow"></div>
+    <p class="small">By the end you can choose between four structures with reasons, and write a function with a clear signature.</p>
+    <div class="footer"><span>Session 3 · Block B · Day 1</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 4 · §1 Why structures matter =========== -->
+  <section class="slide" data-phase="Anatomy">
+    <span class="phase">§1 · Why structures matter</span>
+    <h2>A patient is more than one number.</h2>
+    <div class="two-col">
+      <div>
+        <p>Every admission has many facets:</p>
+        <ul>
+          <li><b>Who</b> — id, age, gender, insurance</li>
+          <li><b>Where</b> — ward</li>
+          <li><b>When</b> — admission &amp; discharge</li>
+          <li><b>Why</b> — DRG code, diagnosis</li>
+          <li><b>How much</b> — cost in EUR</li>
+        </ul>
+        <p class="small" style="margin-top:24px;">Parallel lists work — but they hide meaning in position. Add one column and everything else must stay in sync.</p>
+      </div>
+<pre class="code"><span class="comment"># The naive "parallel lists" approach</span>
+patient_ids = ["P0001", "P0002", "P0003"]
+ages        = [67, 54, 82]
+wards       = ["Cardio", "IM", "Geriatrics"]
+los_days    = [5, 3, 9]
+
+<span class="comment"># Find age of P0002 — count, don't read.</span>
+i = patient_ids.index("P0002")
+print(ages[i])  <span class="comment"># 54</span>
+</pre>
+    </div>
+    <div class="footer"><span>Why we need structures</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 5 · §2 List & Tuple =========== -->
+  <section class="slide" data-phase="Anatomy">
+    <span class="phase">§2 · List &amp; Tuple</span>
+    <h2>Ordered. Indexed. <span class="accent">Mutable or sealed.</span></h2>
+    <div class="two-col">
+      <div>
+        <h3>list <span class="muted">[ ]</span></h3>
+        <p>Ordered, mutable. A queue you can edit.</p>
+<pre class="code">admissions = ["09:14", "10:02"]
+admissions.append("10:47")</pre>
+      </div>
+      <div>
+        <h3>tuple <span class="muted">( )</span></h3>
+        <p>Ordered, immutable. A sealed envelope.</p>
+<pre class="code">location = (52.3759, 9.7320)
+<span class="comment"># location[0] = 53.0  → TypeError</span></pre>
+        <p class="small" style="margin-top:18px;">Tuples are <b>hashable</b> — they can be dict keys or set elements. Lists cannot.</p>
+      </div>
+    </div>
+    <div class="footer"><span>Choose the shape that signals intent</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 6 · §3 Dict =========== -->
+  <section class="slide" data-phase="Anatomy">
+    <span class="phase">§3 · Dict</span>
+    <h2>Keyed access. The natural shape of a record.</h2>
+    <div class="two-col">
+      <div>
+        <p>Maps <b>keys</b> (meaning) to <b>values</b> (data).</p>
+        <p>One dict = one encounter. Read for meaning, not position.</p>
+        <p class="small" style="margin-top:18px;"><code>encounter["ward"]</code> reads better than <code>encounter[3]</code>.</p>
+        <p class="small">Use <code>.get(key, default)</code> for safe access when keys may be missing.</p>
+      </div>
+<pre class="code">encounter = {
+    "encounter_id":  "E00042",
+    "patient_id":    "P0001",
+    "ward":          "Cardiology",
+    "drg_code":      "F62B",
+    "los_days":      5,
+    "actual_cost_eur": 3450.00,
+}
+
+print(encounter["ward"])           <span class="comment"># Cardiology</span>
+encounter.get("nurse", "tba")      <span class="comment"># 'tba'</span></pre>
+    </div>
+    <div class="footer"><span>The most useful structure in clinical data</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 7 · §4 Set =========== -->
+  <section class="slide" data-phase="Anatomy">
+    <span class="phase">§4 · Set</span>
+    <h2>Uniqueness. Fast membership.</h2>
+    <div class="two-col">
+      <div>
+        <p>Unordered, no duplicates, hashable elements only.</p>
+        <p class="small" style="margin-top:14px;">Mental model: a whiteboard list where you only care <em>whether</em> something is on it.</p>
+        <ul>
+          <li><code>a &amp; b</code> — intersection</li>
+          <li><code>a | b</code> — union</li>
+          <li><code>a - b</code> — difference</li>
+        </ul>
+      </div>
+<pre class="code">wards_today = ["Cardio","ICU","Cardio","Surgery","ICU"]
+distinct = set(wards_today)
+<span class="comment"># {'ICU','Cardio','Surgery'}</span>
+
+"ICU" in distinct          <span class="comment"># True</span>
+
+yesterday = {"ICU","Geriatrics","Pulmonology"}
+both = distinct &amp; yesterday   <span class="comment"># {'ICU'}</span></pre>
+    </div>
+    <div class="footer"><span>Use for de-duplication and membership</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 8 · Decision rule =========== -->
+  <section class="slide" data-phase="Anatomy">
+    <span class="phase">Decision rule</span>
+    <h2>Memorise this table.</h2>
+    <table style="margin-top:20px; font-size:30px;">
+      <thead><tr><th style="font-size:22px;">You need…</th><th style="font-size:22px;">Use</th></tr></thead>
+      <tbody>
+        <tr><td>ordered, can grow / change</td><td><b class="accent">list</b></td></tr>
+        <tr><td>ordered, will never change, can be a key</td><td><b class="accent">tuple</b></td></tr>
+        <tr><td>named fields per record</td><td><b class="accent">dict</b></td></tr>
+        <tr><td>unique elements, fast "is it in?"</td><td><b class="accent">set</b></td></tr>
+      </tbody>
+    </table>
+    <div class="grow"></div>
+    <p class="small">Stuck? Ask yourself: <em>What does ONE thing in my data look like?</em></p>
+    <div class="footer"><span>Choose with reasons, not by feel</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 9 · §5 Iteration & list comp =========== -->
+  <section class="slide" data-phase="Physiology">
+    <span class="phase">§5 · Iteration &amp; list comprehensions</span>
+    <h2>Say <em>what</em> you want, not how to loop.</h2>
+    <div class="two-col">
+<pre class="code"><span class="comment"># Classic loop — works:</span>
+total = 0
+for e in encounters:
+    total += e["actual_cost_eur"]
+print(total)</pre>
+<pre class="code"><span class="comment"># Same, comprehension form — read aloud:</span>
+costs = [e["actual_cost_eur"] for e in encounters]
+print(sum(costs))
+
+<span class="comment"># With a filter:</span>
+cardio = [e["actual_cost_eur"] for e in encounters
+          if e["ward"] == "Cardiology"]</pre>
+    </div>
+    <p class="small" style="margin-top:24px;">Read it: <em>"for every encounter <code>e</code> in encounters, take <code>e[\"actual_cost_eur\"]</code>."</em></p>
+    <div class="footer"><span>The pythonic loop</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 10 · CH1 callout =========== -->
+  <section class="slide challenge-slide" data-phase="Hands-on">
+    <span class="phase">⏸️ Mini-Challenge 1</span>
+    <h2>Build a patient roster.</h2>
+    <p class="lead" style="margin-bottom: 20px;">Monday morning at the front desk. Five admissions on a paper sheet — turn them into Python.</p>
+    <div class="two-col" style="margin-top:24px;">
+      <div>
+        <h4>You will</h4>
+        <ul>
+          <li>Build a list of 5 patient dicts</li>
+          <li>Filter for age ≥ 65</li>
+          <li>Print count + mean age</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Fast-Track</h4>
+        <ul>
+          <li>Sort by expected LOS, descending</li>
+          <li>Format each line: <code>P0103 | LOS 5 | InternalMedicine</code></li>
+        </ul>
+      </div>
+    </div>
+    <div class="grow"></div>
+    <p class="small">Tandem · 25 min · open <code>challenges/ch1_patient_roster.ipynb</code></p>
+    <div class="footer"><span>Hands on</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 11 · §6 Functions =========== -->
+  <section class="slide" data-phase="Anatomy 2">
+    <span class="phase">§6 · Functions</span>
+    <h2>Named code. Reusable rules.</h2>
+    <div class="two-col">
+      <div>
+        <p>A function takes <b>parameters</b>, does something, <b>returns</b> one value.</p>
+        <p class="small" style="margin-top:18px;">Think of it as a <em>reusable clinical rule</em>: "Given a list of encounters, return mean LOS." Once written, you trust it.</p>
+        <p class="small">Always include a one-line <b>docstring</b> — your future self will thank you.</p>
+      </div>
+<pre class="code">def mean_los(encounter_list):
+    <span class="comment">"""Mean length of stay across encounters."""</span>
+    if not encounter_list:
+        return 0
+    total = sum(e["los_days"] for e in encounter_list)
+    return total / len(encounter_list)
+
+mean_los(encounters)            <span class="comment"># 5.6</span>
+
+cardio = [e for e in encounters
+          if e["ward"]=="Cardiology"]
+mean_los(cardio)                <span class="comment"># 4.5</span></pre>
+    </div>
+    <div class="footer"><span>The smallest reusable unit</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 12 · §7 Three traps =========== -->
+  <section class="slide" data-phase="Physiology">
+    <span class="phase">§7 · Three traps</span>
+    <h2>Scope · silent <code>None</code> · mutable defaults.</h2>
+    <div class="three-col" style="margin-top:24px;">
+      <div class="card">
+        <h4>Scope</h4>
+<pre class="code" style="font-size:18px;">def f(x):
+    y = x*2
+    return y
+
+f(3)        <span class="comment"># 6</span>
+print(y)    <span class="comment"># NameError</span></pre>
+      </div>
+      <div class="card">
+        <h4>Silent None</h4>
+<pre class="code" style="font-size:18px;">def summary(e):
+    print(e["los_days"])
+    <span class="comment"># no return!</span>
+
+r = summary(e1)
+r           <span class="comment"># None</span></pre>
+      </div>
+      <div class="card accent">
+        <h4>Mutable default</h4>
+<pre class="code" style="font-size:18px;">def bad(msg, log=[]):
+    log.append(msg)
+    return log
+
+bad("a")    <span class="comment"># ['a']</span>
+bad("b")    <span class="comment"># ['a','b'] !</span></pre>
+      </div>
+    </div>
+    <p class="small" style="margin-top:24px;">Fix the third one with <code>def good(msg, log=None): if log is None: log = []</code></p>
+    <div class="footer"><span>Diagnose before they bite</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 13 · CH2 callout =========== -->
+  <section class="slide challenge-slide" data-phase="Hands-on">
+    <span class="phase">⏸️ Mini-Challenge 2</span>
+    <h2>The CFO needs a number, fast.</h2>
+    <p class="lead" style="margin-bottom: 20px;">Board meeting in 20 minutes. <em>"How many cardiology cases this quarter, and what did they cost us in total?"</em></p>
+    <div class="two-col" style="margin-top:24px;">
+      <div>
+        <h4>You will</h4>
+        <ul>
+          <li>Filter list of 50 encounters by ward</li>
+          <li>Count cases · sum cost</li>
+          <li>Print formatted euro amount</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Fast-Track</h4>
+        <ul>
+          <li>Group by DRG code</li>
+          <li>Build <code>{drg: total_cost}</code> sorted desc</li>
+        </ul>
+      </div>
+    </div>
+    <div class="grow"></div>
+    <p class="small">Tandem · 25 min · open <code>challenges/ch2_filter_aggregate.ipynb</code></p>
+    <div class="footer"><span>Hands on</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 14 · §8 Klinik intro =========== -->
+  <section class="slide" data-phase="Clinic">
+    <span class="phase">§8 · Clinic</span>
+    <h2>Bed Occupancy Calculator.</h2>
+    <p class="lead">The CMO's question, end-to-end.</p>
+    <div style="margin-top: 30px;">
+      <p><b>Logic, in three sentences:</b></p>
+      <ol style="font-size: 28px; line-height: 1.5;">
+        <li>For a date <code>d</code>, find encounters where <code>admission ≤ d &lt; discharge</code>.</li>
+        <li>Group those by ward — count = beds used.</li>
+        <li>Divide by capacity → <span class="accent">occupancy rate</span>.</li>
+      </ol>
+    </div>
+    <div class="grow"></div>
+    <p class="small">Three sentences · three small functions · one KPI.</p>
+    <div class="footer"><span>The keystone of the day</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 15 · §8 Three small functions =========== -->
+  <section class="slide" data-phase="Clinic">
+    <span class="phase">§8 · Three small functions</span>
+    <h2>One job each. Trust the interfaces.</h2>
+<pre class="code" style="font-size:22px;">def is_in_house(encounter, target_date):
+    <span class="comment">"""True if patient was inpatient on target_date."""</span>
+    adm = date.fromisoformat(encounter["admission_date"])
+    dc  = date.fromisoformat(encounter["discharge_date"])
+    return adm &lt;= target_date &lt; dc
+
+def beds_used_per_ward(encounters_list, target_date):
+    <span class="comment">"""{ward: count} for that date."""</span>
+    counts = {}
+    for e in encounters_list:
+        if is_in_house(e, target_date):
+            counts[e["ward"]] = counts.get(e["ward"], 0) + 1
+    return counts
+
+def occupancy_rate(encounters_list, target_date, capacity=WARD_CAPACITY):
+    <span class="comment">"""{ward: rate_0_to_1} for that date."""</span>
+    used = beds_used_per_ward(encounters_list, target_date)
+    return {w: used.get(w, 0) / cap for w, cap in capacity.items()}</pre>
+    <div class="footer"><span>Modular thinking — debug one piece, not the whole script</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 16 · §8 Output preview =========== -->
+  <section class="slide" data-phase="Clinic">
+    <span class="phase">§8 · Output</span>
+    <h2>What the CMO sees.</h2>
+    <div class="two-col">
+<pre class="code">target = date(2026, 1, 16)
+rates = occupancy_rate(demo_encounters, target)
+for ward, r in rates.items():
+    print(f"{ward:&gt;20s}  {r:5.0%}")</pre>
+      <div>
+<pre class="code" style="background:#fff; color:#111; border:2px solid var(--ink);">                 ICU     6%
+    InternalMedicine     2%
+             Surgery     2%
+          Cardiology    10%
+          Geriatrics     4%
+         Pulmonology     0%
+           Neurology     0%</pre>
+        <p class="small" style="margin-top:14px;">Tomorrow: same three functions, real CSV, 320 encounters. Nothing about the <em>logic</em> changes.</p>
+      </div>
+    </div>
+    <div class="footer"><span>Shape stays · scale grows</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 17 · CH3 callout =========== -->
+  <section class="slide challenge-slide" data-phase="Hands-on">
+    <span class="phase">⏸️ Mini-Challenge 3</span>
+    <h2>Refactor: spaghetti → functions.</h2>
+    <p class="lead" style="margin-bottom: 20px;"><em>"Could you clean up that script? I want to reuse the high-risk filter for a different cohort."</em></p>
+    <div class="two-col" style="margin-top:24px;">
+      <div>
+        <h4>You will</h4>
+        <ul>
+          <li>Take a 30-line procedural script</li>
+          <li>Refactor into 3 named functions</li>
+          <li>Verify same output</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Differential</h4>
+        <ul>
+          <li>What if a patient lacks <code>"chronic"</code>?</li>
+          <li>One line of <code>.get()</code> fixes it</li>
+        </ul>
+      </div>
+    </div>
+    <div class="grow"></div>
+    <p class="small">Solo · 15 min · open <code>challenges/ch3_refactor.ipynb</code></p>
+    <div class="footer"><span>Hands on</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 18 · DD =========== -->
+  <section class="slide" data-phase="DD">
+    <span class="phase">§9 · Differential diagnosis</span>
+    <h2>Bugs we will see again.</h2>
+    <table style="margin-top: 20px; font-size: 26px;">
+      <thead><tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td><code>'NoneType' is not subscriptable</code></td><td>Function returned None implicitly</td><td>add explicit <code>return</code></td></tr>
+        <tr><td>Function "remembers" old data</td><td>Mutable default argument</td><td><code>arg=None</code> + create inside</td></tr>
+        <tr><td><code>KeyError: 'ward'</code></td><td>Missing field in some dict</td><td><code>.get("ward", "Unknown")</code></td></tr>
+        <tr><td>List grew unexpectedly</td><td>Shared reference, not a copy</td><td><code>new = old.copy()</code></td></tr>
+        <tr><td><code>NameError</code> outside function</td><td>Variable was local in scope</td><td><code>return</code> it instead</td></tr>
+      </tbody>
+    </table>
+    <div class="grow"></div>
+    <p class="small">When something breaks: ask <em>"what's the symptom?"</em> before <em>"what's the fix?"</em></p>
+    <div class="footer"><span>Read tracebacks bottom to top</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 19 · Take-home =========== -->
+  <section class="slide" data-phase="Close">
+    <span class="phase">Take-home</span>
+    <h2>Model your own "stay".</h2>
+    <p class="lead">Pick three encounters from your life as a "patient" of any system — a hotel stay, a flight, a doctor's visit.</p>
+    <ul style="margin-top: 22px;">
+      <li>Model each as a Python <b>dict</b> with at least 5 fields.</li>
+      <li>Write <b>one function</b> that takes a list of these dicts and returns a single summary number.</li>
+      <li>Bring the file to session 4.</li>
+    </ul>
+    <div class="grow"></div>
+    <p class="small">~30 minutes. Choose data you know — gives you space to focus on shape, not domain.</p>
+    <div class="footer"><span>Take-home</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <!-- =========== 20 · Cliffhanger =========== -->
+  <section class="slide title-slide" data-phase="Close">
+    <span class="phase">See you tomorrow</span>
+    <div class="grow"></div>
+    <span class="kicker">Next session</span>
+    <h1>Real data,<br/>finally.</h1>
+    <p class="lead">The CFO sends us the CSV. We meet <span class="accent">NumPy</span> and <span class="accent">Pandas</span>. The structures we built today are exactly what Pandas gives you for free.</p>
+    <div class="grow"></div>
+    <div class="footer"><span>Thursday · 09:00 · Files, NumPy &amp; Pandas I</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+</div>
+</div>
+
+<div id="help" class="hidden">
+  <div><kbd>←</kbd> <kbd>→</kbd> navigate · <kbd>space</kbd> next · <kbd>home</kbd>/<kbd>end</kbd> jump</div>
+  <div><kbd>f</kbd> fullscreen · <kbd>?</kbd> toggle help</div>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let idx = 0;
+  function render() {
+    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+    document.querySelectorAll('.slide-num').forEach(el => { el.textContent = (idx + 1) + ' / ' + total; });
+    document.querySelectorAll('.progress span').forEach(el => { el.style.width = (((idx + 1) / total) * 100) + '%'; });
+    history.replaceState(null, '', '#' + (idx + 1));
+  }
+  function go(n) { idx = Math.max(0, Math.min(total - 1, n)); render(); }
+  document.addEventListener('keydown', (e) => {
+    switch (e.key) {
+      case 'ArrowRight': case 'PageDown': case ' ': e.preventDefault(); go(idx + 1); break;
+      case 'ArrowLeft': case 'PageUp': e.preventDefault(); go(idx - 1); break;
+      case 'Home': e.preventDefault(); go(0); break;
+      case 'End': e.preventDefault(); go(total - 1); break;
+      case 'f': case 'F':
+        if (document.fullscreenElement) document.exitFullscreen();
+        else document.documentElement.requestFullscreen();
+        break;
+      case '?': document.getElementById('help').classList.toggle('hidden'); break;
+    }
+  });
+  document.getElementById('stage').addEventListener('click', (e) => { if (e.shiftKey) go(idx - 1); else go(idx + 1); });
+  function fit() {
+    const deck = document.getElementById('deck');
+    const scale = Math.min(window.innerWidth / 1600, window.innerHeight / 900);
+    deck.style.transform = 'scale(' + scale + ')';
+  }
+  window.addEventListener('resize', fit);
+  fit();
+  const hashIdx = parseInt(location.hash.replace('#', ''), 10);
+  if (!isNaN(hashIdx) && hashIdx >= 1 && hashIdx <= total) idx = hashIdx - 1;
+  render();
+  const help = document.getElementById('help');
+  help.classList.remove('hidden');
+  setTimeout(() => help.classList.add('hidden'), 5000);
+</script>
+</body>
+</html>
