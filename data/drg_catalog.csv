@@ -1,0 +1,26 @@
+drg_code,label,base_reimbursement_eur,expected_los_days
+F62B,"Heart failure, w/o complications",3450.0,5
+F62A,"Heart failure, w/ complications",5980.0,8
+G67B,Esophagitis / gastroenteritis,1820.0,3
+I68B,Lower back pain,1450.0,2
+J64A,"Pneumonia, complicated",4720.0,7
+J64B,"Pneumonia, simple",2380.0,4
+F49G,Cardiac arrhythmia,2110.0,3
+F71B,Coronary heart disease,3950.0,4
+E65A,"COPD exacerbation, severe",5410.0,7
+E65B,"COPD exacerbation, moderate",2960.0,5
+B70A,"Stroke, ischemic",6850.0,9
+B70B,"Stroke, TIA",2240.0,3
+L20A,"Renal failure, dialysis required",7800.0,10
+K62B,"Type 2 diabetes, decompensated",2680.0,4
+F73Z,Syncope / collapse,1290.0,2
+G24Z,Inguinal hernia repair,2540.0,3
+I47B,Hip replacement,8950.0,9
+I47A,"Hip replacement, complicated",11200.0,13
+X62Z,Poisoning / drug reaction,1980.0,3
+Z65Z,"Observation, suspected condition",980.0,1
+R63Z,"Sepsis, w/o organ failure",5670.0,8
+R60A,"Sepsis, w/ organ failure",9840.0,12
+F43Z,Cardiac catheterization,3120.0,2
+M60A,Major prostate procedure,5450.0,6
+D62Z,Tonsillectomy,1180.0,2

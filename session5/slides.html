@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Session 4 — Files, NumPy &amp; Pandas I</title>
+<style>
+  :root { --ink:#111;--paper:#fff;--accent:#EE7F00;--muted:#6b6b6b;--rule:#e5e5e5;--soft:#fff6ec;--code-bg:#1f1f1f;--code-fg:#f5f5f5; }
+  *{box-sizing:border-box;} html,body{margin:0;padding:0;background:#000;color:var(--ink);font-family:"Inter","Helvetica Neue",Arial,sans-serif;overflow:hidden;}
+  #stage{position:fixed;inset:0;background:#000;overflow:hidden;}
+  #deck{position:absolute;top:50%;left:50%;width:1600px;height:900px;margin-left:-800px;margin-top:-450px;transform-origin:center center;background:var(--paper);box-shadow:0 0 80px rgba(0,0,0,0.5);}
+  .slide{position:absolute;inset:0;padding:90px 110px 80px 110px;display:none;flex-direction:column;background:var(--paper);} .slide.active{display:flex;}
+  .phase{position:absolute;top:60px;left:60px;color:var(--accent);font-weight:700;font-size:20px;letter-spacing:0.14em;text-transform:uppercase;}
+  h1{font-size:84px;line-height:1.05;margin:0 0 28px;font-weight:800;letter-spacing:-0.02em;} h2{font-size:60px;line-height:1.08;margin:0 0 22px;font-weight:800;letter-spacing:-0.015em;} h3{font-size:38px;line-height:1.15;margin:0 0 18px;font-weight:700;} h4{font-size:26px;line-height:1.2;margin:0 0 12px;font-weight:700;color:var(--accent);letter-spacing:0.02em;text-transform:uppercase;}
+  p{font-size:28px;line-height:1.35;margin:0 0 16px;} .lead{font-size:38px;line-height:1.25;font-weight:500;} .small{font-size:22px;color:var(--muted);} .muted{color:var(--muted);} .accent{color:var(--accent);font-weight:700;} .kicker{color:var(--accent);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;font-size:24px;margin-bottom:16px;}
+  ul{margin:0;padding:0 0 0 34px;font-size:26px;line-height:1.4;} ul li{margin:8px 0;}
+  code,pre,.mono{font-family:"JetBrains Mono","Fira Code",ui-monospace,Menlo,Consolas,monospace;}
+  pre.code{background:var(--code-bg);color:var(--code-fg);padding:22px 28px;border-radius:12px;font-size:22px;line-height:1.45;white-space:pre;overflow:hidden;} pre.code .comment{color:#9aa0a6;} pre.code .accent{color:#FFB454;font-weight:600;}
+  table{width:100%;border-collapse:collapse;font-size:24px;} th,td{text-align:left;padding:14px 16px;border-bottom:1px solid var(--rule);} th{font-weight:700;text-transform:uppercase;letter-spacing:0.06em;font-size:18px;color:var(--muted);}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:start;} .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:30px;align-items:start;}
+  .grow{flex:1;}
+  .card{background:#fafafa;border:2px solid var(--ink);border-radius:16px;padding:26px 28px;} .card.accent{border-color:var(--accent);background:var(--soft);}
+  .footer{position:absolute;bottom:30px;left:60px;right:60px;display:flex;justify-content:space-between;color:var(--muted);font-size:20px;letter-spacing:0.08em;} .footer .progress{height:4px;flex:1;margin:0 24px;background:var(--rule);align-self:center;position:relative;overflow:hidden;} .footer .progress span{display:block;height:100%;background:var(--accent);width:0%;transition:width 0.3s ease;}
+  .title-slide{background:var(--ink);color:#fff;padding:160px 110px 100px 110px;} .title-slide h1{color:#fff;font-size:104px;margin-bottom:30px;} .title-slide .lead{color:#cfcfcf;font-size:42px;} .title-slide .kicker{color:var(--accent);font-size:26px;} .title-slide .footer{color:#8a8a8a;} .title-slide .footer .progress{background:#333;}
+  .quote-slide{background:var(--soft);} .quote-slide blockquote{margin:0;font-size:56px;line-height:1.2;font-weight:700;color:var(--ink);letter-spacing:-0.01em;} .quote-slide cite{display:block;margin-top:30px;color:var(--muted);font-size:26px;font-style:normal;}
+  .challenge-slide{background:var(--soft);border-left:18px solid var(--accent);padding-left:80px;} .challenge-slide h2{color:var(--accent);}
+  #help{position:fixed;inset:auto 20px 20px auto;background:rgba(0,0,0,0.85);color:#fff;padding:14px 18px;border-radius:10px;font-size:14px;line-height:1.5;z-index:10;font-family:ui-monospace,Menlo,Consolas,monospace;} #help.hidden{display:none;} #help kbd{background:#333;padding:2px 6px;border-radius:4px;margin:0 2px;}
+</style>
+</head>
+<body>
+<div id="stage"><div id="deck">
+
+  <section class="slide title-slide" data-phase="Session 4">
+    <span class="phase">Session 4</span><div class="grow"></div>
+    <span class="kicker">Block B · Saint Mary's General Hospital</span>
+    <h1>Files, NumPy<br/>&amp; Pandas&nbsp;I</h1>
+    <p class="lead">Real data arrives. We meet the two libraries every data scientist lives in.</p>
+    <div class="grow"></div>
+    <div class="footer"><span>07.05.2026 · Operations Analytics Unit</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <section class="slide quote-slide" data-phase="Anamnesis">
+    <span class="phase">Anamnesis</span><div class="grow"></div>
+    <blockquote>Yesterday we&nbsp;<span class="accent">built</span>&nbsp;the hospital in Python.<br/>Today the data&nbsp;<span class="accent">arrives</span>.</blockquote>
+    <cite>The CFO drops three CSVs on your desk at 08:55. By 13:00 he wants to know which DRGs lose us money.</cite>
+    <div class="grow"></div>
+    <div class="footer"><span>Saint Mary's · 07.05.2026 · 09:00</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <section class="slide" data-phase="Anamnesis">
+    <span class="phase">Anamnesis</span>
+    <h2>The shape of today</h2>
+    <p class="small" style="margin-bottom: 30px;">60% your hands · 40% explanation · still the medical bracket</p>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:18px;margin-top:16px;">
+      <div class="card"><h4>1 · Anamnesis</h4><p style="font-size:20px;">What real CSVs look like.</p></div>
+      <div class="card"><h4>2 · Anatomy</h4><p style="font-size:20px;">Files · NumPy · Pandas</p></div>
+      <div class="card"><h4>3 · Physiology</h4><p style="font-size:20px;">Vectorisation · broadcasting</p></div>
+      <div class="card accent"><h4>4 · Clinic</h4><p style="font-size:20px;">320 encounters → margin per DRG</p></div>
+      <div class="card"><h4>5 · DD</h4><p style="font-size:20px;">Encoding · NaN · slice copies</p></div>
+    </div>
+    <div class="grow"></div>
+    <p class="small">By 13:00: every loop you wrote yesterday has a one-liner today.</p>
+    <div class="footer"><span>Session 4 · Block B · Day 2</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <section class="slide" data-phase="Anatomy">
+    <span class="phase">§1 · Files</span>
+    <h2>Open the door. Close it on your way out.</h2>
+    <div class="two-col">
+      <div>
+        <p>A file is bytes. To read text we need <b>encoding</b>. To read a table we need <b>separator</b>.</p>
+        <p class="small" style="margin-top:14px;"><code>with</code> guarantees the file closes — even if something crashes inside.</p>
+      </div>
+<pre class="code">from pathlib import Path
+DATA = Path("../data")
+
+with open(DATA / "drg_catalog.csv",
+          encoding="utf-8") as f:
+    rows = f.readlines()
+
+print(len(rows), "lines")</pre>
+    </div>
+    <div class="footer"><span>The lo-fi way — once, then pandas</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <section class="slide" data-phase="Anatomy">
+    <span class="phase">§2 · pandas.read_csv</span>
+    <h2>The Swiss Army knife.</h2>
+<pre class="code">import pandas as pd
+
+drg = pd.read_csv(DATA / "drg_catalog.csv")
+drg.head()
+drg.info()
+drg.describe()</pre>
+    <p class="small" style="margin-top:24px;">Almost every keyword you'll ever set is <em>because some real-world file is broken in some specific way</em>: <code>encoding</code> · <code>sep</code> · <code>decimal</code> · <code>na_values</code> · <code>parse_dates</code>.</p>
+    <div class="grow"></div>
+    <p><b>Three commands every time you open a new file:</b> <code>.head() · .info() · .describe()</code></p>
+    <div class="footer"><span>The first 90 seconds with any new dataset</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <section class="slide" data-phase="Anatomy">
+    <span class="phase">§3 · NumPy</span>
+    <h2>Arrays as typed memory.</h2>
+    <div class="two-col">
+      <div>
+        <p>A Python list holds anything — flexible but slow.</p>
+        <p>A NumPy array holds <b>one type</b> in <b>contiguous memory</b> — small, fast, the calculator's friend.</p>
+        <p class="small" style="margin-top:18px;">Mental model: list is a notebook with words and drawings. Array is graph paper with numbers in the squares.</p>
+      </div>
+<pre class="code">import numpy as np
+los = np.array([5, 3, 9, 4, 7, 2, 8])
+
+los * 220             <span class="comment"># vectorised: no for-loop</span>
+los > 5               <span class="comment"># boolean mask</span>
+los[los > 5]          <span class="comment"># filter by mask</span>
+los.mean(), los.std() <span class="comment"># C under the hood</span></pre>
+    </div>
+    <div class="footer"><span>Vectorisation = speak in arrays, not in loops</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <section class="slide" data-phase="Physiology">
+    <span class="phase">§4 · Broadcasting</span>
+    <h2>When shapes meet.</h2>
+    <div class="two-col">
+      <div>
+        <p>NumPy operates element-wise. If shapes match — straight arithmetic.</p>
+        <p>If they differ, NumPy <b>broadcasts</b> the smaller one across the larger.</p>
+        <p class="small" style="margin-top:18px;">"For all 320 encounters, multiply by efficiency factor 0.95" — one line, one number, one array.</p>
+      </div>
+<pre class="code">cost  = np.array([3450,1820,8950,2380,7800])
+reimb = np.array([3450,1820,8950,2380,7800])
+
+margin = reimb - cost          <span class="comment"># element-wise</span>
+target = reimb * 0.95          <span class="comment"># scalar broadcasts</span>
+losing = (margin &lt; 0).sum()    <span class="comment"># aggregate</span></pre>
+    </div>
+    <div class="footer"><span>One line ↔ one statement of intent</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <section class="slide challenge-slide" data-phase="Hands-on">
+    <span class="phase">⏸️ Mini-Challenge 1</span>
+    <h2>Load &amp; inspect 200 patients.</h2>
+    <p class="lead" style="margin-bottom:20px;"><em>"How many of our 200 patients carry serious comorbidity load — meaning ≥ 2 chronic conditions?"</em></p>
+    <div class="two-col" style="margin-top:24px;">
+      <div><h4>You will</h4><ul><li><code>pd.read_csv()</code> on patients.csv</li><li><code>.head() · .info() · .describe()</code></li><li>Build a count column · filter ≥ 2</li></ul></div>
+      <div><h4>Fast-Track</h4><ul><li>Average chronic count per insurance</li><li>Sort high-burden share descending</li></ul></div>
+    </div>
+    <div class="grow"></div>
+    <p class="small">Tandem · 25 min · open <code>challenges/ch1_load_inspect.ipynb</code></p>
+    <div class="footer"><span>Hands on</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <section class="slide" data-phase="Anatomy 3">
+    <span class="phase">§5 · Pandas Series</span>
+    <h2>A NumPy array that remembers labels.</h2>
+    <div class="two-col">
+      <div>
+        <p>Series = 1D NumPy array + an <b>index</b>.</p>
+        <p>Every column of a DataFrame IS a Series.</p>
+        <p class="small" style="margin-top:18px;">Access by label, vectorise underneath. Best of both worlds.</p>
+      </div>
+<pre class="code">ages = pd.Series(
+    [67,54,82,39,71],
+    index=["P0001","P0002","P0003","P0004","P0005"])
+
+ages["P0003"]      <span class="comment"># 82</span>
+ages > 65          <span class="comment"># Series of bool</span>
+ages[ages > 65]    <span class="comment"># filtered Series</span>
+(ages * 0.95).round(1)</pre>
+    </div>
+    <div class="footer"><span>Series = labelled array</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <section class="slide" data-phase="Anatomy 3">
+    <span class="phase">§6 · Pandas DataFrame</span>
+    <h2>Series stacked into a table.</h2>
+<pre class="code" style="font-size:24px;">patients = pd.read_csv(DATA / "patients.csv")
+
+patients.shape                          <span class="comment"># (200, 5)</span>
+patients.columns                        <span class="comment"># Index([...])</span>
+patients.dtypes                         <span class="comment"># int64, object, ...</span>
+
+elderly = patients[patients["age"] &gt;= 65]
+patients.sort_values("age", ascending=False).head()
+patients["primary_insurance"].value_counts()
+patients.isna().sum()                    <span class="comment"># missing per col</span></pre>
+    <p class="small" style="margin-top:24px;">Filter · sort · count · check NaN. The four moves you'll make every day.</p>
+    <div class="footer"><span>It's a spreadsheet you can ask questions in code</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <section class="slide challenge-slide" data-phase="Hands-on">
+    <span class="phase">⏸️ Mini-Challenge 2</span>
+    <h2>Vectorised margin per case.</h2>
+    <p class="lead" style="margin-bottom:20px;"><em>"For all 320 encounters: margin = reimbursement − cost. <b>No Python for-loop.</b>"</em></p>
+    <div class="two-col" style="margin-top:24px;">
+      <div><h4>You will</h4><ul><li>Merge encounters with DRG catalog</li><li>Compute margin in one line</li><li>Total margin · loss-making count</li></ul></div>
+      <div><h4>Fast-Track</h4><ul><li>Top 3 worst-margin DRGs</li><li><code>groupby + agg + sort</code> preview</li></ul></div>
+    </div>
+    <div class="grow"></div>
+    <p class="small">Tandem · 25 min · open <code>challenges/ch2_vectorised_margin.ipynb</code></p>
+    <div class="footer"><span>Hands on</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <section class="slide" data-phase="Clinic">
+    <span class="phase">§7 · Clinic</span>
+    <h2>320 encounters → margin per case.</h2>
+<pre class="code" style="font-size:22px;">enc = pd.read_csv(DATA / "encounters.csv",
+                  parse_dates=["admission_date","discharge_date"])
+drg = pd.read_csv(DATA / "drg_catalog.csv")
+
+<span class="comment"># Join reimbursement onto each encounter:</span>
+enc = enc.merge(drg, on="drg_code", how="left")
+
+<span class="comment"># Vectorised margin — one line replaces yesterday's loop:</span>
+enc["margin_eur"] = enc["base_reimbursement_eur"] - enc["actual_cost_eur"]
+
+losing = enc[enc["margin_eur"] &lt; 0]
+print(f"Loss-making: {len(losing)} of {len(enc)}")
+print(f"Total negative margin: € {losing['margin_eur'].sum():,.2f}")</pre>
+    <p class="small" style="margin-top:20px;">Yesterday: 30 lines. Today: 5. <span class="accent">The hospital didn't change. Our tools did.</span></p>
+    <div class="footer"><span>The keystone of the day</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <section class="slide challenge-slide" data-phase="Hands-on">
+    <span class="phase">⏸️ Mini-Challenge 3</span>
+    <h2>Clean a messy export.</h2>
+    <p class="lead" style="margin-bottom:20px;"><em>"This file came from the radiology system. Different encoding, different separator. Make it usable."</em></p>
+    <div class="two-col" style="margin-top:24px;">
+      <div><h4>You will</h4><ul><li>Identify <code>encoding · sep · decimal</code></li><li>Drop dupes · drop impossible LOS</li><li>Normalise gender column</li></ul></div>
+      <div><h4>DD trap</h4><ul><li>Why does <code>.str.upper().str[0]</code> work?</li><li>Discuss with tandem partner</li></ul></div>
+    </div>
+    <div class="grow"></div>
+    <p class="small">Solo · 15 min · open <code>challenges/ch3_messy_csv.ipynb</code></p>
+    <div class="footer"><span>Hands on</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <section class="slide" data-phase="DD">
+    <span class="phase">§8 · Differential diagnosis</span>
+    <h2>The three load-time bugs.</h2>
+    <table style="margin-top: 20px; font-size: 26px;">
+      <thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td><code>UnicodeDecodeError</code></td><td>wrong encoding</td><td><code>encoding="cp1252"</code></td></tr>
+        <tr><td>Numbers come in as strings</td><td>comma decimal, trailing space</td><td><code>decimal=","</code></td></tr>
+        <tr><td><code>SettingWithCopyWarning</code></td><td>modified a slice, not the original</td><td><code>df.loc[mask, "col"] = ...</code></td></tr>
+        <tr><td>Whole column NaN</td><td>locale mismatch</td><td><code>decimal=","</code></td></tr>
+        <tr><td><code>KeyError</code> (typo-looking)</td><td>trailing space in column name</td><td><code>df.columns.str.strip()</code></td></tr>
+      </tbody>
+    </table>
+    <div class="grow"></div>
+    <p class="small">Read the error message bottom to top. The line just above the traceback is usually the cause.</p>
+    <div class="footer"><span>The bugs you'll see again and again</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <section class="slide" data-phase="Close">
+    <span class="phase">Take-home</span>
+    <h2>Open your own CSV.</h2>
+    <p class="lead">Pick any tabular file you have — exam scores, expense list, gym log, anything.</p>
+    <ul style="margin-top: 22px;">
+      <li>Load with <code>pd.read_csv()</code>.</li>
+      <li>Run <code>.head() · .info() · .describe()</code> on it.</li>
+      <li>Compute <b>one</b> vectorised expression that gives a single business-relevant number.</li>
+      <li>Bring a screenshot to session 5.</li>
+    </ul>
+    <div class="grow"></div>
+    <p class="small">~30 minutes. Practise the muscle memory of those three first commands.</p>
+    <div class="footer"><span>Take-home</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+  <section class="slide title-slide" data-phase="Close">
+    <span class="phase">See you tomorrow</span><div class="grow"></div>
+    <span class="kicker">Next session</span>
+    <h1>GroupBy.<br/>Visualise.<br/>Ship.</h1>
+    <p class="lead">Friday: <span class="accent">GroupBy</span>, joins, plots — and clean code that's exam-ready by Tuesday.</p>
+    <div class="grow"></div>
+    <div class="footer"><span>Friday · 09:00 · Pandas II + Visualisation</span><span class="progress"><span></span></span><span class="slide-num"></span></div>
+  </section>
+
+</div></div>
+
+<div id="help" class="hidden">
+  <div><kbd>←</kbd> <kbd>→</kbd> navigate · <kbd>space</kbd> next · <kbd>home</kbd>/<kbd>end</kbd> jump</div>
+  <div><kbd>f</kbd> fullscreen · <kbd>?</kbd> toggle help</div>
+</div>
+<script>
+  const slides=Array.from(document.querySelectorAll('.slide'));const total=slides.length;let idx=0;
+  function render(){slides.forEach((s,i)=>s.classList.toggle('active',i===idx));document.querySelectorAll('.slide-num').forEach(el=>el.textContent=(idx+1)+' / '+total);document.querySelectorAll('.progress span').forEach(el=>el.style.width=(((idx+1)/total)*100)+'%');history.replaceState(null,'','#'+(idx+1));}
+  function go(n){idx=Math.max(0,Math.min(total-1,n));render();}
+  document.addEventListener('keydown',(e)=>{switch(e.key){case 'ArrowRight':case 'PageDown':case ' ':e.preventDefault();go(idx+1);break;case 'ArrowLeft':case 'PageUp':e.preventDefault();go(idx-1);break;case 'Home':e.preventDefault();go(0);break;case 'End':e.preventDefault();go(total-1);break;case 'f':case 'F':if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen();break;case '?':document.getElementById('help').classList.toggle('hidden');break;}});
+  document.getElementById('stage').addEventListener('click',(e)=>{if(e.shiftKey)go(idx-1);else go(idx+1);});
+  function fit(){const deck=document.getElementById('deck');const scale=Math.min(window.innerWidth/1600,window.innerHeight/900);deck.style.transform='scale('+scale+')';}
+  window.addEventListener('resize',fit);fit();
+  const hashIdx=parseInt(location.hash.replace('#',''),10);if(!isNaN(hashIdx)&&hashIdx>=1&&hashIdx<=total)idx=hashIdx-1;render();
+  const help=document.getElementById('help');help.classList.remove('hidden');setTimeout(()=>help.classList.add('hidden'),5000);
+</script>
+</body>
+</html>

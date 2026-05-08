@@ -1,0 +1,10 @@
+Patient ID;Age ;Gender;Insurance ;LOS ;Cost (EUR)
+P0001;67;F;AOK;5;3450,00
+P0002;;M;TK;3;1820,00
+P0003;82;female;Barmer;4;
+P0004;55;M;AOK;-1;1450,00
+P0005;71;M;Privat - Allianz;7;4720,50
+P0001;67;F;AOK;5;3450,00
+P0006;n/a;M;AOK;2;1290,00
+P0007;48;F;TK;3;
+P0008 ;73;M;Selbstzahler;9;8950,00
